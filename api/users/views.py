@@ -3,6 +3,7 @@ from django.contrib.sites.shortcuts import get_current_site
 from django.http import HttpResponse
 from django.shortcuts import redirect
 from django.views import View
+from django.views.generic.edit import FormView
 from drf_yasg2.utils import swagger_auto_schema
 from rest_framework import mixins, status, viewsets
 from rest_framework.decorators import action
@@ -14,15 +15,27 @@ from organisations.permissions import (
     OrganisationUsersPermission,
     UserPermissionGroupPermission,
 )
-from organisations.serializers import (
-    UserOrganisationSerializer,
-)
+from organisations.serializers import UserOrganisationSerializer
 from users.models import FFAdminUser, UserPermissionGroup
 from users.serializers import (
     UserIdsSerializer,
     UserListSerializer,
     UserPermissionGroupSerializerDetail,
 )
+
+from .forms import InitConfigForm
+
+
+class OnBoardingView(FormView):
+    template_name = "users/onboard.html"
+    form_class = InitConfigForm
+    success_url = "/home/"
+
+    def form_valid(self, form):
+        if FFAdminUser.objects.count() == 0:
+            form.create_admin()
+            form.update_site()
+        return super().form_valid(form)
 
 
 class AdminInitView(View):

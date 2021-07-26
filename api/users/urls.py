@@ -2,11 +2,12 @@ from django.conf import settings
 from django.conf.urls import url
 from django.urls import path
 
-from .views import AdminInitView
 from organisations.invites.views import (
     join_organisation_from_email,
     join_organisation_from_link,
 )
+
+from .views import AdminInitView, OnBoardingView
 
 app_name = "users"
 
@@ -14,6 +15,7 @@ urlpatterns = [
     path(
         "join/<str:hash>/", join_organisation_from_email, name="user-join-organisation"
     ),
+    path("config/init/", OnBoardingView.as_view(), name="onboard"),
     path(
         "join/link/<str:hash>/",
         join_organisation_from_link,
